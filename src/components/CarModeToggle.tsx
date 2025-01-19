@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { useNavigate } from "react-router-dom";
 
 interface CarModeToggleProps {
   isCarMode: boolean;
@@ -18,6 +19,7 @@ export const CarModeToggle = ({
   setIsSnapLinked
 }: CarModeToggleProps) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleCarModeToggle = () => {
     setIsCarMode(!isCarMode);
@@ -28,11 +30,7 @@ export const CarModeToggle = ({
   };
 
   const handleSnapLink = () => {
-    setIsSnapLinked(true);
-    toast({
-      title: "Snapchat Linked",
-      description: "Your Snapchat account has been connected successfully!",
-    });
+    navigate("/snap-login");
   };
 
   return (

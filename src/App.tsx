@@ -8,6 +8,7 @@ import U from "./pages/U";
 import N from "./pages/N";
 import I from "./pages/I";
 import Verse from "./pages/Verse";
+import SnapLogin from "./pages/SnapLogin";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/n" element={<N />} />
           <Route path="/i" element={<I />} />
           <Route path="/verse" element={<Verse />} />
+          <Route path="/snap-login" element={<SnapLogin />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
