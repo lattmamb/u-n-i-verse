@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 interface TabNavigationProps {
   activeTab: string;
@@ -6,11 +7,18 @@ interface TabNavigationProps {
 }
 
 export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
+  const navigate = useNavigate();
   const tabs = [
-    { id: "you", label: "U" },
-    { id: "i", label: "I" },
-    { id: "first", label: "1ST" },
+    { id: "u", label: "U", path: "/u" },
+    { id: "n", label: "N", path: "/n" },
+    { id: "i", label: "I", path: "/i" },
+    { id: "verse", label: "VERSE", path: "/verse" },
   ];
+
+  const handleTabClick = (tab: { id: string; path: string }) => {
+    onTabChange(tab.id);
+    navigate(tab.path);
+  };
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-transparent px-4 pt-12">
@@ -18,7 +26,7 @@ export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) =>
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            onClick={() => onTabChange(tab.id)}
+            onClick={() => handleTabClick(tab)}
             className={cn(
               "text-lg font-semibold transition-all",
               activeTab === tab.id

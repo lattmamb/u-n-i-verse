@@ -3,7 +3,6 @@ import { TabNavigation } from "@/components/TabNavigation";
 import { VideoCard } from "@/components/VideoCard";
 import { useToast } from "@/hooks/use-toast";
 
-// Mock data for demonstration
 const mockVideos = [
   {
     id: 1,
@@ -26,17 +25,11 @@ const mockVideos = [
 ];
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState("you");
+  const [activeTab, setActiveTab] = useState("u");
   const { toast } = useToast();
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
-    if (tab !== "you") {
-      toast({
-        title: "Coming Soon",
-        description: `The ${tab.toUpperCase()} tab will be available in the next update!`,
-      });
-    }
   };
 
   return (
