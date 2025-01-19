@@ -7,8 +7,9 @@ import { SearchBar } from "@/components/SearchBar";
 import Map3D from "@/components/Map3D";
 import AIAssistant from "@/components/AIAssistant";
 import { JarvisAvatar } from "@/components/JarvisAvatar";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { WorldMap } from "@/components/ui/world-map";
+import { ContainerScroll } from "@/components/ui/container-scroll-animation";
 
 const mockVideos = [
   {
@@ -105,24 +106,42 @@ const Index = () => {
       <AIAssistant isCarMode={isCarMode} />
 
       {/* Main Content */}
-      <motion.div 
-        className="snap-y snap-mandatory h-screen overflow-y-scroll"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        {mockVideos.map((video) => (
+      <ContainerScroll
+        titleComponent={
           <motion.div 
-            key={video.id} 
-            className="snap-start h-screen"
+            className="space-y-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ delay: 0.2 }}
           >
-            <VideoCard {...video} />
+            <h1 className="text-4xl font-bold text-white">
+              UNI <span className="text-primary">Verse</span>
+            </h1>
+            <p className="text-lg text-gray-200">
+              Connect with your world
+            </p>
           </motion.div>
-        ))}
-      </motion.div>
+        }
+      >
+        <motion.div 
+          className="snap-y snap-mandatory h-screen overflow-y-scroll"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          {mockVideos.map((video) => (
+            <motion.div 
+              key={video.id} 
+              className="snap-start h-screen"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <VideoCard {...video} />
+            </motion.div>
+          ))}
+        </motion.div>
+      </ContainerScroll>
 
       {/* Bottom Navigation */}
       <MainNavigation />
