@@ -31,13 +31,7 @@ const Map3D: React.FC<MapProps> = ({ userLocation }) => {
         pitch: 75,
         bearing: 0,
         antialias: true,
-        projection: is3DMode ? 'globe' : 'mercator',
-        fog: {
-          'horizon-blend': 0.3,
-          'star-intensity': 0.15,
-          'space-color': '#000000',
-          'color': '#242B4B'
-        }
+        projection: is3DMode ? 'globe' : 'mercator'
       });
 
       map.current.addControl(new mapboxgl.NavigationControl({
@@ -46,6 +40,14 @@ const Map3D: React.FC<MapProps> = ({ userLocation }) => {
 
       map.current.on('style.load', () => {
         if (!map.current) return;
+
+        // Add atmosphere and fog effects
+        map.current.setFog({
+          'horizon-blend': 0.3,
+          'star-intensity': 0.15,
+          'space-color': '#000000',
+          'color': '#242B4B'
+        });
 
         // Add atmosphere effect
         map.current.setFog({
