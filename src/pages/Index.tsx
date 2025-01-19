@@ -7,6 +7,7 @@ import { SearchBar } from "@/components/SearchBar";
 import Map3D from "@/components/Map3D";
 import AIAssistant from "@/components/AIAssistant";
 import { JarvisAvatar } from "@/components/JarvisAvatar";
+import { IronMan } from "@/components/IronMan";
 import { motion, AnimatePresence } from "framer-motion";
 import { ContainerScroll } from "@/components/ui/container-scroll-animation";
 
@@ -85,8 +86,9 @@ const Index = () => {
         />
       </div>
 
-      {/* Jarvis Avatar */}
+      {/* Jarvis Avatar and Iron Man */}
       <JarvisAvatar />
+      <IronMan />
 
       {/* AI Assistant */}
       <AIAssistant isCarMode={isCarMode} />
