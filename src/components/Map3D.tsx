@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 
 interface MapProps {
   userLocation: { lat: number; lng: number } | null;
@@ -11,15 +9,14 @@ interface MapProps {
 const Map3D: React.FC<MapProps> = ({ userLocation }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const [mapboxToken, setMapboxToken] = useState('');
   const [isMapInitialized, setIsMapInitialized] = useState(false);
 
-  const initializeMap = () => {
-    if (!mapContainer.current || !userLocation || !mapboxToken) return;
+  useEffect(() => {
+    if (!mapContainer.current || !userLocation) return;
 
     try {
-      // Initialize map
-      mapboxgl.accessToken = mapboxToken;
+      // Initialize map with the provided token
+      mapboxgl.accessToken = 'pk.eyJ1IjoidW5pdHlmbGVldCIsImEiOiJjbTV0bjBuMnEweWV2MmxxNjY3NWk5OGhlIn0.fVzbEBvxSWr1yt7iU1Uj0w';
       
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
@@ -78,7 +75,7 @@ const Map3D: React.FC<MapProps> = ({ userLocation }) => {
     } catch (error) {
       console.error('Error initializing map:', error);
     }
-  };
+  }, [userLocation]);
 
   useEffect(() => {
     return () => {
@@ -87,32 +84,6 @@ const Map3D: React.FC<MapProps> = ({ userLocation }) => {
       }
     };
   }, []);
-
-  if (!isMapInitialized) {
-    return (
-      <div className="absolute inset-0 flex items-center justify-center bg-black/80">
-        <div className="bg-background p-6 rounded-lg shadow-lg max-w-md w-full space-y-4">
-          <h2 className="text-xl font-bold text-foreground">Enter Mapbox Token</h2>
-          <p className="text-sm text-muted-foreground">
-            Please enter your Mapbox public token to initialize the map. 
-            You can find this in your Mapbox account dashboard.
-          </p>
-          <Input
-            type="text"
-            placeholder="pk.eyJ1..."
-            value={mapboxToken}
-            onChange={(e) => setMapboxToken(e.target.value)}
-          />
-          <Button 
-            onClick={initializeMap}
-            disabled={!mapboxToken || !userLocation}
-          >
-            Initialize Map
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="absolute inset-0 -z-10">
