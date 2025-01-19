@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { Button } from "@/components/ui/button";
-import { MapIcon, Compass, ZoomIn, ZoomOut, Globe2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
+import { MapControls } from './map/MapControls';
+import { initializeMapEffects } from '@/utils/mapEffects';
+import { setupMapEventHandlers } from '@/utils/mapEventHandlers';
 
 interface MapProps {
   userLocation: { lat: number; lng: number } | null;
@@ -41,51 +42,7 @@ const Map3D: React.FC<MapProps> = ({ userLocation }) => {
       map.current.on('style.load', () => {
         if (!map.current) return;
 
-        // Add atmosphere and fog effects
-        map.current.setFog({
-          'horizon-blend': 0.3,
-          'star-intensity': 0.15,
-          'space-color': '#000000',
-          'color': '#242B4B'
-        });
-
-        // Add atmosphere effect
-        map.current.setFog({
-          'color': 'rgb(186, 210, 235)',
-          'high-color': 'rgb(36, 92, 223)',
-          'horizon-blend': 0.02,
-          'space-color': 'rgb(11, 11, 25)',
-          'star-intensity': 0.6
-        });
-
-        // Add 3D terrain
-        map.current.addSource('mapbox-dem', {
-          'type': 'raster-dem',
-          'url': 'mapbox://mapbox.terrain-rgb',
-          'tileSize': 512,
-          'maxzoom': 14
-        });
-
-        map.current.setTerrain({
-          'source': 'mapbox-dem',
-          'exaggeration': 1.5
-        });
-
-        // Add 3D buildings
-        map.current.addLayer({
-          'id': '3d-buildings',
-          'source': 'composite',
-          'source-layer': 'building',
-          'filter': ['==', 'extrude', 'true'],
-          'type': 'fill-extrusion',
-          'minzoom': 15,
-          'paint': {
-            'fill-extrusion-color': '#aaa',
-            'fill-extrusion-height': ['get', 'height'],
-            'fill-extrusion-base': ['get', 'min_height'],
-            'fill-extrusion-opacity': 0.8
-          }
-        });
+        initializeMapEffects(map.current);
 
         if (isMapActive) {
           map.current.dragPan.enable();
@@ -102,41 +59,15 @@ const Map3D: React.FC<MapProps> = ({ userLocation }) => {
         setIsMapInitialized(true);
       });
 
-      // Add automatic rotation for immersive effect
-      const rotateCamera = () => {
-        if (!map.current || !isMapActive) return;
-        setRotation(prev => prev + 0.5);
-        map.current.easeTo({
-          bearing: rotation,
-          duration: 50,
-          easing: t => t
-        });
-        requestAnimationFrame(rotateCamera);
+      const rotateCamera = setupMapEventHandlers(map.current, isMapActive, setRotation);
+
+      return () => {
+        map.current?.remove();
       };
-
-      if (isMapActive) {
-        requestAnimationFrame(rotateCamera);
-      }
-
     } catch (error) {
       console.error('Error initializing map:', error);
     }
-
-    return () => {
-      map.current?.remove();
-    };
   }, [userLocation, isMapActive, rotation, is3DMode]);
-
-  const handleMapToggle = () => {
-    setIsMapActive(!isMapActive);
-  };
-
-  const toggle3DMode = () => {
-    setIs3DMode(!is3DMode);
-    if (map.current) {
-      map.current.setProjection(is3DMode ? 'mercator' : 'globe');
-    }
-  };
 
   return (
     <>
@@ -153,59 +84,13 @@ const Map3D: React.FC<MapProps> = ({ userLocation }) => {
         <div className={`absolute inset-0 bg-black/30 pointer-events-none transition-opacity duration-500 ${isMapActive ? 'opacity-0' : 'opacity-70'}`} />
       </motion.div>
 
-      <AnimatePresence>
-        {isMapActive && (
-          <motion.div 
-            className="fixed bottom-20 right-4 flex flex-col gap-2"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-          >
-            <Button
-              onClick={() => map.current?.zoomIn()}
-              className="bg-white/10 backdrop-blur-sm hover:bg-white/20"
-              size="icon"
-            >
-              <ZoomIn className="h-4 w-4 text-white" />
-            </Button>
-            <Button
-              onClick={() => map.current?.zoomOut()}
-              className="bg-white/10 backdrop-blur-sm hover:bg-white/20"
-              size="icon"
-            >
-              <ZoomOut className="h-4 w-4 text-white" />
-            </Button>
-            <Button
-              onClick={() => map.current?.resetNorth()}
-              className="bg-white/10 backdrop-blur-sm hover:bg-white/20"
-              size="icon"
-            >
-              <Compass className="h-4 w-4 text-white" />
-            </Button>
-            <Button
-              onClick={toggle3DMode}
-              className="bg-white/10 backdrop-blur-sm hover:bg-white/20"
-              size="icon"
-            >
-              <Globe2 className="h-4 w-4 text-white" />
-            </Button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <motion.div
-        className="fixed bottom-4 right-4 z-50"
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-      >
-        <Button
-          onClick={handleMapToggle}
-          className="bg-white/10 backdrop-blur-sm hover:bg-white/20"
-          size="icon"
-        >
-          <MapIcon className={`h-4 w-4 text-white transition-transform duration-300 ${isMapActive ? 'rotate-180' : ''}`} />
-        </Button>
-      </motion.div>
+      <MapControls
+        map={map.current}
+        isMapActive={isMapActive}
+        setIsMapActive={setIsMapActive}
+        is3DMode={is3DMode}
+        setIs3DMode={setIs3DMode}
+      />
     </>
   );
 };
