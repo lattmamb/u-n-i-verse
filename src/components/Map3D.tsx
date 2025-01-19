@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import { Button } from "@/components/ui/button";
+import { MapIcon } from "lucide-react";
 
 interface MapProps {
   userLocation: { lat: number; lng: number } | null;
@@ -10,6 +12,7 @@ const Map3D: React.FC<MapProps> = ({ userLocation }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [isMapInitialized, setIsMapInitialized] = useState(false);
+  const [isMapActive, setIsMapActive] = useState(false);
 
   useEffect(() => {
     if (!mapContainer.current || !userLocation) return;
@@ -25,7 +28,8 @@ const Map3D: React.FC<MapProps> = ({ userLocation }) => {
         zoom: 8,
         pitch: 45,
         bearing: -17.6,
-        antialias: true
+        antialias: true,
+        interactive: false // Start with non-interactive map
       });
 
       // Add navigation controls
@@ -78,6 +82,23 @@ const Map3D: React.FC<MapProps> = ({ userLocation }) => {
   }, [userLocation]);
 
   useEffect(() => {
+    if (map.current) {
+      map.current.setLayoutProperty('3d-buildings', 'visibility', isMapActive ? 'visible' : 'none');
+      map.current.dragPan.enable();
+      map.current.scrollZoom.enable();
+      map.current.dragRotate.enable();
+      map.current.touchZoomRotate.enable();
+      
+      if (!isMapActive) {
+        map.current.dragPan.disable();
+        map.current.scrollZoom.disable();
+        map.current.dragRotate.disable();
+        map.current.touchZoomRotate.disable();
+      }
+    }
+  }, [isMapActive]);
+
+  useEffect(() => {
     return () => {
       if (map.current) {
         map.current.remove();
@@ -86,10 +107,20 @@ const Map3D: React.FC<MapProps> = ({ userLocation }) => {
   }, []);
 
   return (
-    <div className="absolute inset-0 -z-10">
-      <div ref={mapContainer} className="w-full h-full" />
-      <div className="absolute inset-0 bg-black/30" />
-    </div>
+    <>
+      <div className={`absolute inset-0 -z-10 transition-opacity duration-500 ${isMapActive ? 'opacity-100' : 'opacity-30'}`}>
+        <div ref={mapContainer} className="w-full h-full" />
+        <div className={`absolute inset-0 bg-black/30 pointer-events-none ${isMapActive ? 'bg-opacity-0' : 'bg-opacity-70'}`} />
+      </div>
+      <Button
+        onClick={() => setIsMapActive(!isMapActive)}
+        className="fixed bottom-4 right-4 z-50"
+        variant="secondary"
+        size="icon"
+      >
+        <MapIcon className={`h-4 w-4 transition-transform ${isMapActive ? 'rotate-180' : ''}`} />
+      </Button>
+    </>
   );
 };
 
