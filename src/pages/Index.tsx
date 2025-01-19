@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TabNavigation } from "@/components/TabNavigation";
 import { VideoCard } from "@/components/VideoCard";
 import { MainNavigation } from "@/components/MainNavigation";
@@ -34,7 +34,7 @@ const Index = () => {
   const [isSnapLinked, setIsSnapLinked] = useState(false);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
 
-  useState(() => {
+  useEffect(() => {
     // Get user's location for the map
     navigator.geolocation.getCurrentPosition(
       (position) => {
