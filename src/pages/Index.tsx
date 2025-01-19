@@ -5,6 +5,7 @@ import { MainNavigation } from "@/components/MainNavigation";
 import { CarModeToggle, CarModePrompt } from "@/components/CarModeToggle";
 import { SearchBar } from "@/components/SearchBar";
 import Map3D from "@/components/Map3D";
+import AIAssistant from "@/components/AIAssistant";
 import { motion } from "framer-motion";
 
 const mockVideos = [
@@ -79,6 +80,9 @@ const Index = () => {
           setIsSnapLinked={setIsSnapLinked}
         />
       </div>
+
+      {/* AI Assistant */}
+      <AIAssistant isCarMode={isCarMode} />
 
       {/* Main Content */}
       <motion.div 
