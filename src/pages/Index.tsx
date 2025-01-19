@@ -35,7 +35,10 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState("u");
   const [isCarMode, setIsCarMode] = useState(false);
   const [isSnapLinked, setIsSnapLinked] = useState(false);
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number }>({
+    lat: 40.6331, // Illinois coordinates
+    lng: -89.3985
+  });
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
@@ -47,7 +50,11 @@ const Index = () => {
       },
       (error) => {
         console.error("Error getting location:", error);
-        setUserLocation({ lat: 41.8781, lng: -87.6298 });
+        // Fallback to Illinois coordinates if geolocation fails
+        setUserLocation({
+          lat: 40.6331,
+          lng: -89.3985
+        });
       }
     );
   }, []);

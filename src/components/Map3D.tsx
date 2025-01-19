@@ -18,8 +18,14 @@ const Map3D: React.FC<MapProps> = ({ userLocation }) => {
   const [is3DMode, setIs3DMode] = useState(true);
   const [rotation, setRotation] = useState(0);
 
+  // Illinois coordinates
+  const illinoisCoordinates = {
+    lat: 40.6331,
+    lng: -89.3985
+  };
+
   useEffect(() => {
-    if (!mapContainer.current || !userLocation) return;
+    if (!mapContainer.current) return;
 
     try {
       mapboxgl.accessToken = 'pk.eyJ1IjoidW5pdHlmbGVldCIsImEiOiJjbTV0bjBuMnEweWV2MmxxNjY3NWk5OGhlIn0.fVzbEBvxSWr1yt7iU1Uj0w';
@@ -27,13 +33,18 @@ const Map3D: React.FC<MapProps> = ({ userLocation }) => {
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/satellite-streets-v12',
-        center: [userLocation.lng, userLocation.lat],
-        zoom: 15,
-        pitch: 75,
+        center: [userLocation?.lng || illinoisCoordinates.lng, userLocation?.lat || illinoisCoordinates.lat],
+        zoom: 5,
+        pitch: 60,
         bearing: 0,
         antialias: true,
         projection: is3DMode ? 'globe' : 'mercator'
       });
+
+      // Add Illinois marker
+      new mapboxgl.Marker()
+        .setLngLat([illinoisCoordinates.lng, illinoisCoordinates.lat])
+        .addTo(map.current);
 
       map.current.addControl(new mapboxgl.NavigationControl({
         visualizePitch: true
@@ -43,6 +54,26 @@ const Map3D: React.FC<MapProps> = ({ userLocation }) => {
         if (!map.current) return;
 
         initializeMapEffects(map.current);
+
+        // Add state boundaries
+        map.current.addSource('states', {
+          type: 'vector',
+          url: 'mapbox://mapbox.boundaries-adm1-v3'
+        });
+
+        map.current.addLayer({
+          'id': 'state-borders',
+          'type': 'line',
+          'source': 'states',
+          'source-layer': 'boundaries_admin_1',
+          'layout': {},
+          'paint': {
+            'line-color': '#627BC1',
+            'line-width': 2,
+            'line-opacity': 0.7
+          },
+          'filter': ['==', ['get', 'iso_3166_2'], 'US-IL']
+        });
 
         if (isMapActive) {
           map.current.dragPan.enable();
