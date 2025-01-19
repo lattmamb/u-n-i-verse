@@ -9,10 +9,10 @@ interface TabNavigationProps {
 export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
   const navigate = useNavigate();
   const tabs = [
-    { id: "u", label: "U", path: "/u" },
-    { id: "n", label: "N", path: "/n" },
-    { id: "i", label: "I", path: "/i" },
-    { id: "verse", label: "VERSE", path: "/verse" },
+    { id: "u", label: "U", path: "/u", isMain: true },
+    { id: "n", label: "N", path: "/n", isMain: false },
+    { id: "i", label: "I", path: "/i", isMain: true },
+    { id: "verse", label: "VERSE", path: "/verse", isMain: true },
   ];
 
   const handleTabClick = (tab: { id: string; path: string }) => {
@@ -22,20 +22,27 @@ export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) =>
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-transparent px-4 pt-12">
-      <div className="flex justify-center gap-8">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => handleTabClick(tab)}
-            className={cn(
-              "text-lg font-semibold transition-all",
-              activeTab === tab.id
-                ? "text-white scale-110"
-                : "text-white/60 hover:text-white/80"
+      <div className="flex justify-center items-center gap-2">
+        {tabs.map((tab, index) => (
+          <div key={tab.id} className="flex items-center">
+            <button
+              onClick={() => handleTabClick(tab)}
+              className={cn(
+                "transition-all",
+                tab.isMain
+                  ? "text-lg font-semibold"
+                  : "text-sm font-normal opacity-50",
+                activeTab === tab.id
+                  ? "text-white scale-110"
+                  : "text-white/60 hover:text-white/80"
+              )}
+            >
+              {tab.label}
+            </button>
+            {index < tabs.length - 1 && (
+              <span className="text-white/20 mx-2">•</span>
             )}
-          >
-            {tab.label}
-          </button>
+          </div>
         ))}
       </div>
     </div>
