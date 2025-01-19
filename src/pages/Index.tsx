@@ -7,7 +7,6 @@ import { SearchBar } from "@/components/SearchBar";
 import Map3D from "@/components/Map3D";
 import AIAssistant from "@/components/AIAssistant";
 import { JarvisAvatar } from "@/components/JarvisAvatar";
-import { IronMan } from "@/components/IronMan";
 import { motion, AnimatePresence } from "framer-motion";
 import { ContainerScroll } from "@/components/ui/container-scroll-animation";
 
@@ -58,10 +57,10 @@ const Index = () => {
   };
 
   return (
-    <div className="bg-[#3C2A21] min-h-screen relative overflow-hidden">
+    <div className="bg-[#1A1F2C] min-h-screen relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#5C4033]/20 via-[#3C2A21] to-[#3C2A21]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#1A1F2C] to-[#1A1F2C]" />
         <div className="stars absolute inset-0" />
       </div>
 
@@ -86,9 +85,8 @@ const Index = () => {
         />
       </div>
 
-      {/* Jarvis Avatar and Iron Man */}
+      {/* Jarvis Avatar */}
       <JarvisAvatar />
-      <IronMan />
 
       {/* AI Assistant */}
       <AIAssistant isCarMode={isCarMode} />
