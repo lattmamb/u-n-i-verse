@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Button } from "@/components/ui/button";
-import { MapIcon, Compass, ZoomIn, ZoomOut } from "lucide-react";
+import { MapIcon, Compass, ZoomIn, ZoomOut, Globe2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface MapProps {
@@ -14,6 +14,7 @@ const Map3D: React.FC<MapProps> = ({ userLocation }) => {
   const map = useRef<mapboxgl.Map | null>(null);
   const [isMapInitialized, setIsMapInitialized] = useState(false);
   const [isMapActive, setIsMapActive] = useState(false);
+  const [is3DMode, setIs3DMode] = useState(true);
   const [rotation, setRotation] = useState(0);
 
   useEffect(() => {
@@ -24,40 +25,51 @@ const Map3D: React.FC<MapProps> = ({ userLocation }) => {
       
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/dark-v11',
+        style: 'mapbox://styles/mapbox/satellite-streets-v12',
         center: [userLocation.lng, userLocation.lat],
-        zoom: 8,
-        pitch: 45,
-        bearing: -17.6,
+        zoom: 15,
+        pitch: 75,
+        bearing: 0,
         antialias: true,
-        interactive: false
+        projection: is3DMode ? 'globe' : 'mercator',
+        fog: {
+          'horizon-blend': 0.3,
+          'star-intensity': 0.15,
+          'space-color': '#000000',
+          'color': '#242B4B'
+        }
       });
 
-      map.current.addControl(new mapboxgl.NavigationControl());
-
-      new mapboxgl.Marker({ color: '#00ff00' })
-        .setLngLat([userLocation.lng, userLocation.lat])
-        .addTo(map.current);
-
-      new mapboxgl.Marker({ color: '#0FA0CE', rotation: 45 })
-        .setLngLat([-88.9548, 39.8403] as [number, number])
-        .addTo(map.current);
-
-      const mockLocations: [number, number][] = [
-        [-88.2434, 40.1164],
-        [-89.6501, 39.7817],
-        [-88.0834, 42.0334]
-      ];
-
-      mockLocations.forEach(location => {
-        new mapboxgl.Marker({ color: '#ff0000' })
-          .setLngLat(location)
-          .addTo(map.current);
-      });
+      map.current.addControl(new mapboxgl.NavigationControl({
+        visualizePitch: true
+      }));
 
       map.current.on('style.load', () => {
         if (!map.current) return;
 
+        // Add atmosphere effect
+        map.current.setFog({
+          'color': 'rgb(186, 210, 235)',
+          'high-color': 'rgb(36, 92, 223)',
+          'horizon-blend': 0.02,
+          'space-color': 'rgb(11, 11, 25)',
+          'star-intensity': 0.6
+        });
+
+        // Add 3D terrain
+        map.current.addSource('mapbox-dem', {
+          'type': 'raster-dem',
+          'url': 'mapbox://mapbox.terrain-rgb',
+          'tileSize': 512,
+          'maxzoom': 14
+        });
+
+        map.current.setTerrain({
+          'source': 'mapbox-dem',
+          'exaggeration': 1.5
+        });
+
+        // Add 3D buildings
         map.current.addLayer({
           'id': '3d-buildings',
           'source': 'composite',
@@ -66,14 +78,13 @@ const Map3D: React.FC<MapProps> = ({ userLocation }) => {
           'type': 'fill-extrusion',
           'minzoom': 15,
           'paint': {
-            'fill-extrusion-color': '#222',
+            'fill-extrusion-color': '#aaa',
             'fill-extrusion-height': ['get', 'height'],
-            'fill-extrusion-opacity': 0.6
+            'fill-extrusion-base': ['get', 'min_height'],
+            'fill-extrusion-opacity': 0.8
           }
         });
 
-        map.current.setLayoutProperty('3d-buildings', 'visibility', isMapActive ? 'visible' : 'none');
-        
         if (isMapActive) {
           map.current.dragPan.enable();
           map.current.scrollZoom.enable();
@@ -89,10 +100,10 @@ const Map3D: React.FC<MapProps> = ({ userLocation }) => {
         setIsMapInitialized(true);
       });
 
-      // Add rotation animation
+      // Add automatic rotation for immersive effect
       const rotateCamera = () => {
         if (!map.current || !isMapActive) return;
-        setRotation(prev => prev + 1);
+        setRotation(prev => prev + 0.5);
         map.current.easeTo({
           bearing: rotation,
           duration: 50,
@@ -112,10 +123,17 @@ const Map3D: React.FC<MapProps> = ({ userLocation }) => {
     return () => {
       map.current?.remove();
     };
-  }, [userLocation, isMapActive, rotation]);
+  }, [userLocation, isMapActive, rotation, is3DMode]);
 
   const handleMapToggle = () => {
     setIsMapActive(!isMapActive);
+  };
+
+  const toggle3DMode = () => {
+    setIs3DMode(!is3DMode);
+    if (map.current) {
+      map.current.setProjection(is3DMode ? 'mercator' : 'globe');
+    }
   };
 
   return (
@@ -161,6 +179,13 @@ const Map3D: React.FC<MapProps> = ({ userLocation }) => {
               size="icon"
             >
               <Compass className="h-4 w-4 text-white" />
+            </Button>
+            <Button
+              onClick={toggle3DMode}
+              className="bg-white/10 backdrop-blur-sm hover:bg-white/20"
+              size="icon"
+            >
+              <Globe2 className="h-4 w-4 text-white" />
             </Button>
           </motion.div>
         )}
