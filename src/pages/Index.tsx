@@ -6,7 +6,9 @@ import { CarModeToggle, CarModePrompt } from "@/components/CarModeToggle";
 import { SearchBar } from "@/components/SearchBar";
 import Map3D from "@/components/Map3D";
 import AIAssistant from "@/components/AIAssistant";
+import { JarvisAvatar } from "@/components/JarvisAvatar";
 import { motion } from "framer-motion";
+import { WorldMap } from "@/components/ui/world-map";
 
 const mockVideos = [
   {
@@ -36,7 +38,6 @@ const Index = () => {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
 
   useEffect(() => {
-    // Get user's location for the map
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setUserLocation({
@@ -46,7 +47,6 @@ const Index = () => {
       },
       (error) => {
         console.error("Error getting location:", error);
-        // Default to Chicago
         setUserLocation({ lat: 41.8781, lng: -87.6298 });
       }
     );
@@ -62,6 +62,23 @@ const Index = () => {
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#1A1F2C] to-[#1A1F2C]" />
         <div className="stars absolute inset-0" />
+      </div>
+
+      {/* World Map with Connected Users */}
+      <div className="relative z-10">
+        <WorldMap
+          dots={[
+            {
+              start: userLocation ? { lat: userLocation.lat, lng: userLocation.lng } : { lat: 41.8781, lng: -87.6298 },
+              end: { lat: 34.0522, lng: -118.2437 },
+            },
+            {
+              start: { lat: 51.5074, lng: -0.1278 },
+              end: { lat: 48.8566, lng: 2.3522 },
+            },
+          ]}
+          lineColor="#8B5CF6"
+        />
       </div>
 
       {/* 3D Map Background */}
@@ -80,6 +97,9 @@ const Index = () => {
           setIsSnapLinked={setIsSnapLinked}
         />
       </div>
+
+      {/* Jarvis Avatar */}
+      <JarvisAvatar />
 
       {/* AI Assistant */}
       <AIAssistant isCarMode={isCarMode} />
