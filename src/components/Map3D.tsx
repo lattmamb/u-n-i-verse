@@ -36,11 +36,11 @@ const Map3D: React.FC<MapProps> = ({ userLocation }) => {
 
     // Add Decatur, IL marker (blue arrow)
     new mapboxgl.Marker({ color: '#0FA0CE', rotation: 45 })
-      .setLngLat([-88.9548, 39.8403]) // Decatur, IL coordinates
+      .setLngLat([-88.9548, 39.8403] as [number, number]) // Decatur, IL coordinates
       .addTo(map.current);
 
     // Mock other users' locations (red dots)
-    const mockLocations = [
+    const mockLocations: [number, number][] = [
       [-88.2434, 40.1164], // Champaign
       [-89.6501, 39.7817], // Springfield
       [-88.0834, 42.0334]  // Chicago
