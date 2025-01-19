@@ -7,7 +7,7 @@ interface TabNavigationProps {
 
 export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
   const tabs = [
-    { id: "you", label: "YOU" },
+    { id: "you", label: "U" },
     { id: "i", label: "I" },
     { id: "first", label: "1ST" },
   ];
