@@ -58,9 +58,11 @@ const Map3D: React.FC<MapProps> = ({ userLocation }) => {
           .addTo(map.current);
       });
 
-      // Add 3D building layer
+      // Add 3D building layer and initialize map controls
       map.current.on('style.load', () => {
-        map.current?.addLayer({
+        if (!map.current) return;
+
+        map.current.addLayer({
           'id': '3d-buildings',
           'source': 'composite',
           'source-layer': 'building',
@@ -73,30 +75,47 @@ const Map3D: React.FC<MapProps> = ({ userLocation }) => {
             'fill-extrusion-opacity': 0.6
           }
         });
-      });
 
-      setIsMapInitialized(true);
+        // Set initial visibility
+        map.current.setLayoutProperty('3d-buildings', 'visibility', isMapActive ? 'visible' : 'none');
+        
+        // Update map controls based on active state
+        if (isMapActive) {
+          map.current.dragPan.enable();
+          map.current.scrollZoom.enable();
+          map.current.dragRotate.enable();
+          map.current.touchZoomRotate.enable();
+        } else {
+          map.current.dragPan.disable();
+          map.current.scrollZoom.disable();
+          map.current.dragRotate.disable();
+          map.current.touchZoomRotate.disable();
+        }
+
+        setIsMapInitialized(true);
+      });
     } catch (error) {
       console.error('Error initializing map:', error);
     }
-  }, [userLocation]);
+  }, [userLocation, isMapActive]);
 
   useEffect(() => {
-    if (map.current) {
+    if (map.current && isMapInitialized) {
       map.current.setLayoutProperty('3d-buildings', 'visibility', isMapActive ? 'visible' : 'none');
-      map.current.dragPan.enable();
-      map.current.scrollZoom.enable();
-      map.current.dragRotate.enable();
-      map.current.touchZoomRotate.enable();
       
-      if (!isMapActive) {
+      if (isMapActive) {
+        map.current.dragPan.enable();
+        map.current.scrollZoom.enable();
+        map.current.dragRotate.enable();
+        map.current.touchZoomRotate.enable();
+      } else {
         map.current.dragPan.disable();
         map.current.scrollZoom.disable();
         map.current.dragRotate.disable();
         map.current.touchZoomRotate.disable();
       }
     }
-  }, [isMapActive]);
+  }, [isMapActive, isMapInitialized]);
 
   useEffect(() => {
     return () => {
