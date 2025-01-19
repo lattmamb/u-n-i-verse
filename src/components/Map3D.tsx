@@ -2,7 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Button } from "@/components/ui/button";
-import { MapIcon } from "lucide-react";
+import { MapIcon, Compass, ZoomIn, ZoomOut } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface MapProps {
   userLocation: { lat: number; lng: number } | null;
@@ -13,6 +14,7 @@ const Map3D: React.FC<MapProps> = ({ userLocation }) => {
   const map = useRef<mapboxgl.Map | null>(null);
   const [isMapInitialized, setIsMapInitialized] = useState(false);
   const [isMapActive, setIsMapActive] = useState(false);
+  const [rotation, setRotation] = useState(0);
 
   useEffect(() => {
     if (!mapContainer.current || !userLocation) return;
@@ -86,51 +88,97 @@ const Map3D: React.FC<MapProps> = ({ userLocation }) => {
 
         setIsMapInitialized(true);
       });
+
+      // Add rotation animation
+      const rotateCamera = () => {
+        if (!map.current || !isMapActive) return;
+        setRotation(prev => prev + 1);
+        map.current.easeTo({
+          bearing: rotation,
+          duration: 50,
+          easing: t => t
+        });
+        requestAnimationFrame(rotateCamera);
+      };
+
+      if (isMapActive) {
+        requestAnimationFrame(rotateCamera);
+      }
+
     } catch (error) {
       console.error('Error initializing map:', error);
     }
-  }, [userLocation, isMapActive]);
 
-  useEffect(() => {
-    if (map.current && isMapInitialized) {
-      map.current.setLayoutProperty('3d-buildings', 'visibility', isMapActive ? 'visible' : 'none');
-      
-      if (isMapActive) {
-        map.current.dragPan.enable();
-        map.current.scrollZoom.enable();
-        map.current.dragRotate.enable();
-        map.current.touchZoomRotate.enable();
-      } else {
-        map.current.dragPan.disable();
-        map.current.scrollZoom.disable();
-        map.current.dragRotate.disable();
-        map.current.touchZoomRotate.disable();
-      }
-    }
-  }, [isMapActive, isMapInitialized]);
-
-  useEffect(() => {
     return () => {
-      if (map.current) {
-        map.current.remove();
-      }
+      map.current?.remove();
     };
-  }, []);
+  }, [userLocation, isMapActive, rotation]);
+
+  const handleMapToggle = () => {
+    setIsMapActive(!isMapActive);
+  };
 
   return (
     <>
-      <div className={`absolute inset-0 -z-10 transition-opacity duration-500 ${isMapActive ? 'opacity-100' : 'opacity-30'}`}>
-        <div ref={mapContainer} className="w-full h-full" />
-        <div className={`absolute inset-0 bg-black/30 pointer-events-none ${isMapActive ? 'bg-opacity-0' : 'bg-opacity-70'}`} />
-      </div>
-      <Button
-        onClick={() => setIsMapActive(!isMapActive)}
-        className="fixed bottom-4 right-4 z-50"
-        variant="secondary"
-        size="icon"
+      <motion.div 
+        className={`absolute inset-0 -z-10 transition-all duration-500`}
+        initial={{ opacity: 0.3 }}
+        animate={{ 
+          opacity: isMapActive ? 1 : 0.3,
+          scale: isMapActive ? 1 : 0.95
+        }}
+        transition={{ duration: 0.5 }}
       >
-        <MapIcon className={`h-4 w-4 transition-transform ${isMapActive ? 'rotate-180' : ''}`} />
-      </Button>
+        <div ref={mapContainer} className="w-full h-full" />
+        <div className={`absolute inset-0 bg-black/30 pointer-events-none transition-opacity duration-500 ${isMapActive ? 'opacity-0' : 'opacity-70'}`} />
+      </motion.div>
+
+      <AnimatePresence>
+        {isMapActive && (
+          <motion.div 
+            className="fixed bottom-20 right-4 flex flex-col gap-2"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+          >
+            <Button
+              onClick={() => map.current?.zoomIn()}
+              className="bg-white/10 backdrop-blur-sm hover:bg-white/20"
+              size="icon"
+            >
+              <ZoomIn className="h-4 w-4 text-white" />
+            </Button>
+            <Button
+              onClick={() => map.current?.zoomOut()}
+              className="bg-white/10 backdrop-blur-sm hover:bg-white/20"
+              size="icon"
+            >
+              <ZoomOut className="h-4 w-4 text-white" />
+            </Button>
+            <Button
+              onClick={() => map.current?.resetNorth()}
+              className="bg-white/10 backdrop-blur-sm hover:bg-white/20"
+              size="icon"
+            >
+              <Compass className="h-4 w-4 text-white" />
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <motion.div
+        className="fixed bottom-4 right-4 z-50"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+      >
+        <Button
+          onClick={handleMapToggle}
+          className="bg-white/10 backdrop-blur-sm hover:bg-white/20"
+          size="icon"
+        >
+          <MapIcon className={`h-4 w-4 text-white transition-transform duration-300 ${isMapActive ? 'rotate-180' : ''}`} />
+        </Button>
+      </motion.div>
     </>
   );
 };
