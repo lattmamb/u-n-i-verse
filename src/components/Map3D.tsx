@@ -6,7 +6,7 @@ import { MapOverlay, MapWrapper } from './map/MapOverlay';
 import { useMapInitialization } from '@/hooks/useMapInitialization';
 
 interface MapProps {
-  userLocation: { lat: number; lng: number } | null;
+  userLocation?: { lat: number; lng: number } | null;
 }
 
 export const DEFAULT_LOCATION = {
