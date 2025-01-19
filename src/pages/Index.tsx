@@ -65,6 +65,11 @@ const Index = () => {
         <div className="stars absolute inset-0" />
       </div>
 
+      {/* 3D Map Background */}
+      <div className="relative z-10">
+        <Map3D userLocation={userLocation} />
+      </div>
+
       {/* World Map with Connected Users */}
       <div className="relative z-10">
         <WorldMap
@@ -81,9 +86,6 @@ const Index = () => {
           lineColor="#8B5CF6"
         />
       </div>
-
-      {/* 3D Map Background */}
-      <Map3D userLocation={userLocation} />
 
       {/* Top Navigation and Search */}
       <div className="relative z-50">
