@@ -4,6 +4,8 @@ import { VideoCard } from "@/components/VideoCard";
 import { MainNavigation } from "@/components/MainNavigation";
 import { CarModeToggle, CarModePrompt } from "@/components/CarModeToggle";
 import { SearchBar } from "@/components/SearchBar";
+import Map3D from "@/components/Map3D";
+import { motion } from "framer-motion";
 
 const mockVideos = [
   {
@@ -30,6 +32,24 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState("u");
   const [isCarMode, setIsCarMode] = useState(false);
   const [isSnapLinked, setIsSnapLinked] = useState(false);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+
+  useState(() => {
+    // Get user's location for the map
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+      },
+      (error) => {
+        console.error("Error getting location:", error);
+        // Default to Chicago
+        setUserLocation({ lat: 41.8781, lng: -87.6298 });
+      }
+    );
+  }, []);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
@@ -43,28 +63,42 @@ const Index = () => {
         <div className="stars absolute inset-0" />
       </div>
 
+      {/* 3D Map Background */}
+      <Map3D userLocation={userLocation} />
+
       {/* Top Navigation and Search */}
       <div className="relative z-50">
         <TabNavigation activeTab={activeTab} onTabChange={handleTabChange} />
-        <div className="fixed top-4 right-4 flex items-center gap-4">
-          <CarModeToggle
-            isCarMode={isCarMode}
-            setIsCarMode={setIsCarMode}
-            isSnapLinked={isSnapLinked}
-            setIsSnapLinked={setIsSnapLinked}
-          />
+        <div className="fixed top-4 left-4 flex items-center gap-4">
           <SearchBar />
         </div>
+        <CarModeToggle
+          isCarMode={isCarMode}
+          setIsCarMode={setIsCarMode}
+          isSnapLinked={isSnapLinked}
+          setIsSnapLinked={setIsSnapLinked}
+        />
       </div>
 
       {/* Main Content */}
-      <div className="snap-y snap-mandatory h-screen overflow-y-scroll">
+      <motion.div 
+        className="snap-y snap-mandatory h-screen overflow-y-scroll"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
         {mockVideos.map((video) => (
-          <div key={video.id} className="snap-start h-screen">
+          <motion.div 
+            key={video.id} 
+            className="snap-start h-screen"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
             <VideoCard {...video} />
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {/* Bottom Navigation */}
       <MainNavigation />
