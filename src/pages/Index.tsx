@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { TabNavigation } from "@/components/TabNavigation";
 import { VideoCard } from "@/components/VideoCard";
 import { MainNavigation } from "@/components/MainNavigation";
@@ -65,11 +65,6 @@ const Index = () => {
         <div className="stars absolute inset-0" />
       </div>
 
-      {/* 3D Map Background */}
-      <div className="relative z-10">
-        <Map3D userLocation={userLocation} />
-      </div>
-
       {/* World Map with Connected Users */}
       <div className="relative z-10">
         <WorldMap
@@ -86,6 +81,13 @@ const Index = () => {
           lineColor="#8B5CF6"
         />
       </div>
+
+      {/* 3D Map Background */}
+      <Suspense fallback={null}>
+        <div className="relative z-20">
+          <Map3D userLocation={userLocation} />
+        </div>
+      </Suspense>
 
       {/* Top Navigation and Search */}
       <div className="relative z-50">
