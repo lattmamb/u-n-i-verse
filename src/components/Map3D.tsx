@@ -18,7 +18,6 @@ const Map3D: React.FC<MapProps> = ({ userLocation }) => {
     if (!mapContainer.current || !userLocation) return;
 
     try {
-      // Initialize map with the provided token
       mapboxgl.accessToken = 'pk.eyJ1IjoidW5pdHlmbGVldCIsImEiOiJjbTV0bjBuMnEweWV2MmxxNjY3NWk5OGhlIn0.fVzbEBvxSWr1yt7iU1Uj0w';
       
       map.current = new mapboxgl.Map({
@@ -29,27 +28,23 @@ const Map3D: React.FC<MapProps> = ({ userLocation }) => {
         pitch: 45,
         bearing: -17.6,
         antialias: true,
-        interactive: false // Start with non-interactive map
+        interactive: false
       });
 
-      // Add navigation controls
       map.current.addControl(new mapboxgl.NavigationControl());
 
-      // Add user location marker (green)
       new mapboxgl.Marker({ color: '#00ff00' })
         .setLngLat([userLocation.lng, userLocation.lat])
         .addTo(map.current);
 
-      // Add Decatur, IL marker (blue arrow)
       new mapboxgl.Marker({ color: '#0FA0CE', rotation: 45 })
         .setLngLat([-88.9548, 39.8403] as [number, number])
         .addTo(map.current);
 
-      // Mock other users' locations (red dots)
       const mockLocations: [number, number][] = [
-        [-88.2434, 40.1164], // Champaign
-        [-89.6501, 39.7817], // Springfield
-        [-88.0834, 42.0334]  // Chicago
+        [-88.2434, 40.1164],
+        [-89.6501, 39.7817],
+        [-88.0834, 42.0334]
       ];
 
       mockLocations.forEach(location => {
@@ -58,7 +53,6 @@ const Map3D: React.FC<MapProps> = ({ userLocation }) => {
           .addTo(map.current);
       });
 
-      // Add 3D building layer and initialize map controls
       map.current.on('style.load', () => {
         if (!map.current) return;
 
@@ -76,10 +70,8 @@ const Map3D: React.FC<MapProps> = ({ userLocation }) => {
           }
         });
 
-        // Set initial visibility
         map.current.setLayoutProperty('3d-buildings', 'visibility', isMapActive ? 'visible' : 'none');
         
-        // Update map controls based on active state
         if (isMapActive) {
           map.current.dragPan.enable();
           map.current.scrollZoom.enable();
