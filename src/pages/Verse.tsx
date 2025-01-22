@@ -10,9 +10,9 @@ const DECATUR_LOCATION = {
 };
 
 const MOCK_USERS = [
-  { id: 1, position: [1, 1, 0], active: true },
-  { id: 2, position: [-1, -1, 0], active: false },
-  { id: 3, position: [2, -1, 1], active: true },
+  { id: 1, position: [1, 1, 0] as [number, number, number], active: true },
+  { id: 2, position: [-1, -1, 0] as [number, number, number], active: false },
+  { id: 3, position: [2, -1, 1] as [number, number, number], active: true },
 ];
 
 const mockVideos = [
