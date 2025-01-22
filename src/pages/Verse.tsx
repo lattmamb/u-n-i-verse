@@ -9,6 +9,17 @@ import { useToast } from "@/hooks/use-toast";
 import Map3D from "@/components/Map3D";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+const DECATUR_LOCATION = {
+  lat: 39.8403,
+  lng: -88.9548
+};
+
+const MOCK_USERS = [
+  { id: 1, lat: 39.8503, lng: -88.9648, active: true },
+  { id: 2, lat: 39.8303, lng: -88.9448, active: false },
+  { id: 3, lat: 39.8603, lng: -88.9748, active: true },
+];
+
 interface Video {
   id: number;
   videoUrl: string;
@@ -47,32 +58,14 @@ const mockVideos: Video[] = [
 ];
 
 const Verse = () => {
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [isCarMode, setIsCarMode] = useState(false);
   const { toast } = useToast();
   
   useEffect(() => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          });
-          toast({
-            title: "Location Access Granted",
-            description: "You'll now see content within 50 miles of your location.",
-          });
-        },
-        () => {
-          toast({
-            variant: "destructive",
-            title: "Location Access Denied",
-            description: "Please enable location services to see local content.",
-          });
-        }
-      );
-    }
+    toast({
+      title: "Location Connected",
+      description: "Welcome to Decatur, Illinois!",
+    });
   }, [toast]);
 
   const handleCarModeToggle = () => {
@@ -85,7 +78,11 @@ const Verse = () => {
 
   return (
     <div className="min-h-screen bg-transparent relative">
-      <Map3D userLocation={userLocation} />
+      <Map3D 
+        userLocation={DECATUR_LOCATION}
+        activeUsers={MOCK_USERS}
+        showDetailedView={true}
+      />
       
       <motion.div 
         initial={{ opacity: 0 }}
@@ -102,29 +99,28 @@ const Verse = () => {
         </Button>
       </motion.div>
 
-      <ContainerScroll
-        titleComponent={
-          <motion.div 
-            className="space-y-4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <h1 className="text-4xl font-bold text-white">
-              You and I <span className="text-primary">Verse</span>
-            </h1>
-            <p className="text-lg text-gray-200">
-              Connect with your world, on the go
-            </p>
-            {userLocation && (
+      <div className="relative z-10 mt-[40vh]">
+        <ContainerScroll
+          titleComponent={
+            <motion.div 
+              className="space-y-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <h1 className="text-4xl font-bold text-white">
+                You and I <span className="text-primary">Verse</span>
+              </h1>
+              <p className="text-lg text-gray-200">
+                Connect with your world, on the go
+              </p>
               <div className="flex items-center justify-center gap-2 text-sm text-gray-300">
                 <MapPin className="w-4 h-4" />
-                <span>Location connected</span>
+                <span>Decatur, Illinois</span>
               </div>
-            )}
-          </motion.div>
-        }
-      >
+            </motion.div>
+          }
+        >
         <Tabs defaultValue="feed" className="w-full max-w-3xl mx-auto">
           <TabsList className="grid w-full grid-cols-4 bg-white/10 backdrop-blur-sm">
             <TabsTrigger value="feed">Feed</TabsTrigger>
@@ -202,7 +198,8 @@ const Verse = () => {
             </div>
           </TabsContent>
         </Tabs>
-      </ContainerScroll>
+        </ContainerScroll>
+      </div>
 
       <AnimatePresence>
         {isCarMode && (

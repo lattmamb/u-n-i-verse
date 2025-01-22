@@ -9,13 +9,15 @@ interface MapInitializationProps {
   map: MutableRefObject<mapboxgl.Map | null>;
   userLocation: { lat: number; lng: number };
   is3DMode: boolean;
+  onMapLoad?: () => void;
 }
 
 export const useMapInitialization = ({
   mapContainer,
   map,
   userLocation,
-  is3DMode
+  is3DMode,
+  onMapLoad
 }: MapInitializationProps) => {
   const initializeMap = () => {
     if (!mapContainer.current) return;
@@ -32,26 +34,10 @@ export const useMapInitialization = ({
         projection: is3DMode ? 'globe' : 'mercator'
       });
 
-      addIllinoisMarker();
-      addMapControls();
       setupMapLoadHandler();
     } catch (error) {
       console.error('Error initializing map:', error);
     }
-  };
-
-  const addIllinoisMarker = () => {
-    if (!map.current) return;
-    new mapboxgl.Marker()
-      .setLngLat([userLocation.lng, userLocation.lat])
-      .addTo(map.current);
-  };
-
-  const addMapControls = () => {
-    if (!map.current) return;
-    map.current.addControl(new mapboxgl.NavigationControl({
-      visualizePitch: true
-    }));
   };
 
   const setupMapLoadHandler = () => {
@@ -62,6 +48,7 @@ export const useMapInitialization = ({
 
       initializeMapEffects(map.current);
       addIllinoisOutline();
+      onMapLoad?.();
     });
   };
 
