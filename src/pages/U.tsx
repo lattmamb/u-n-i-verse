@@ -3,7 +3,7 @@ import { TabNavigation } from "@/components/TabNavigation";
 import { MainNavigation } from "@/components/MainNavigation";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Users, Camera, Map, BookOpen, Fire, Plus } from "lucide-react";
+import { Users, Camera, Map, BookOpen, Flame, Plus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useNavigate } from "react-router-dom";
@@ -143,7 +143,7 @@ const U = () => {
                     {user.name}
                     {user.streak > 0 && (
                       <span className="flex items-center text-xs bg-yellow-500/20 px-2 py-1 rounded-full">
-                        <Fire className="w-3 h-3 text-yellow-500 mr-1" />
+                        <Flame className="w-3 h-3 text-yellow-500 mr-1" />
                         {user.streak}
                       </span>
                     )}
