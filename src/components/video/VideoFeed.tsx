@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Play, Heart, MessageCircle, Share2, Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useState } from "react";
 
 interface Video {
