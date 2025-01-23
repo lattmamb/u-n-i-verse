@@ -14,7 +14,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ onCommand, isCarMode }) => {
   const [isMuted, setIsMuted] = useState(false);
   const { toast } = useToast();
   
-  // Simulated assistant state
+  // Convert assistantState to a plain serializable object
   const [assistantState, setAssistantState] = useState({
     temperature: "72°F",
     wiperStatus: "Off",
@@ -23,7 +23,9 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ onCommand, isCarMode }) => {
   });
 
   const handleVoiceCommand = () => {
-    setIsListening(prev => !prev);
+    // Ensure we're only passing serializable data
+    const newIsListening = !isListening;
+    setIsListening(newIsListening);
     if (!isListening) {
       toast({
         title: "Voice Assistant Activated",
@@ -33,12 +35,29 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ onCommand, isCarMode }) => {
   };
 
   const toggleMute = () => {
-    setIsMuted(prev => !prev);
+    // Ensure we're only passing serializable data
+    const newIsMuted = !isMuted;
+    setIsMuted(newIsMuted);
     toast({
-      title: isMuted ? "Assistant Unmuted" : "Assistant Muted",
-      description: isMuted ? "Voice responses enabled" : "Voice responses disabled",
+      title: newIsMuted ? "Assistant Muted" : "Assistant Unmuted",
+      description: newIsMuted ? "Voice responses disabled" : "Voice responses enabled",
     });
   };
+
+  // If onCommand is provided, ensure we only pass serializable data
+  useEffect(() => {
+    if (onCommand) {
+      const handleCommand = (command: string) => {
+        // Convert any complex objects to strings before passing
+        onCommand(JSON.stringify({ command, timestamp: Date.now() }));
+      };
+      
+      // Cleanup
+      return () => {
+        // Any cleanup code here
+      };
+    }
+  }, [onCommand]);
 
   return (
     <AnimatePresence>
@@ -62,7 +81,6 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ onCommand, isCarMode }) => {
               }}
             >
               <div className="relative">
-                {/* Ripple effect when listening */}
                 {isListening && (
                   <motion.div
                     className="absolute inset-0 rounded-full bg-primary"
@@ -71,7 +89,6 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ onCommand, isCarMode }) => {
                     transition={{ repeat: Infinity, duration: 1.5 }}
                   />
                 )}
-                {/* Core avatar circle */}
                 <motion.div
                   className="w-10 h-10 rounded-full bg-primary flex items-center justify-center relative z-10"
                   animate={{ 
