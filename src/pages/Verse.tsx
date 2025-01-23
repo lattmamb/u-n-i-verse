@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Verse3DEnvironment } from "@/components/verse/Verse3DEnvironment";
 import { VerseContent } from "@/components/verse/VerseContent";
@@ -44,11 +44,22 @@ const Verse = () => {
   const [activeTab, setActiveTab] = useState("verse");
   const { toast } = useToast();
   
+  const handleTabChange = useCallback((tab: string) => {
+    setActiveTab(tab);
+  }, []);
+
   useEffect(() => {
-    toast({
+    const welcomeToast = toast({
       title: "Location Connected",
       description: "Welcome to Decatur, Illinois!",
     });
+
+    return () => {
+      // Cleanup toast if component unmounts before toast disappears
+      if (welcomeToast) {
+        welcomeToast.dismiss();
+      }
+    };
   }, [toast]);
 
   return (
@@ -73,7 +84,7 @@ const Verse = () => {
       {/* Content Layer */}
       <VerseContent 
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={handleTabChange}
         videos={mockVideos}
       />
     </div>

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { MapControls } from './map/MapControls';
@@ -23,15 +23,59 @@ export const DEFAULT_LOCATION = {
   lng: -89.3985
 };
 
-const Map3D: React.FC<MapProps> = ({ 
+const Map3D: React.FC<MapProps> = React.memo(({ 
   userLocation, 
   activeUsers = [], 
   showDetailedView = false 
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
+  const markersRef = useRef<mapboxgl.Marker[]>([]);
   const [isMapActive, setIsMapActive] = useState(false);
   const [is3DMode, setIs3DMode] = useState(true);
+
+  // Cleanup markers
+  const cleanupMarkers = useCallback(() => {
+    markersRef.current.forEach(marker => marker.remove());
+    markersRef.current = [];
+  }, []);
+
+  // Add markers
+  const addMarkers = useCallback(() => {
+    if (!map.current) return;
+    
+    cleanupMarkers();
+
+    // Add user location marker
+    const el = document.createElement('div');
+    el.className = 'location-marker';
+    el.style.width = '20px';
+    el.style.height = '20px';
+    el.style.backgroundImage = `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 0L20 20L10 15L0 20L10 0Z' fill='%230EA5E9'/%3E%3C/svg%3E")`;
+    el.style.backgroundSize = '100%';
+
+    const marker = new mapboxgl.Marker(el)
+      .setLngLat([userLocation?.lng || DEFAULT_LOCATION.lng, userLocation?.lat || DEFAULT_LOCATION.lat])
+      .addTo(map.current);
+    markersRef.current.push(marker);
+
+    // Add other user markers
+    activeUsers.forEach(user => {
+      const userEl = document.createElement('div');
+      userEl.className = 'user-marker';
+      userEl.style.width = '12px';
+      userEl.style.height = '12px';
+      userEl.style.borderRadius = '50%';
+      userEl.style.backgroundColor = user.active ? '#10B981' : '#EF4444';
+      userEl.style.border = '2px solid white';
+      userEl.style.boxShadow = '0 0 10px rgba(0,0,0,0.3)';
+
+      const userMarker = new mapboxgl.Marker(userEl)
+        .setLngLat([user.lng, user.lat])
+        .addTo(map.current);
+      markersRef.current.push(userMarker);
+    });
+  }, [userLocation, activeUsers]);
 
   useMapInitialization({
     mapContainer,
@@ -40,35 +84,8 @@ const Map3D: React.FC<MapProps> = ({
     is3DMode,
     onMapLoad: () => {
       if (!map.current) return;
-
-      // Add user location marker with blue arrow
-      const el = document.createElement('div');
-      el.className = 'location-marker';
-      el.style.width = '20px';
-      el.style.height = '20px';
-      el.style.backgroundImage = `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 0L20 20L10 15L0 20L10 0Z' fill='%230EA5E9'/%3E%3C/svg%3E")`;
-      el.style.backgroundSize = '100%';
-
-      new mapboxgl.Marker(el)
-        .setLngLat([userLocation?.lng || DEFAULT_LOCATION.lng, userLocation?.lat || DEFAULT_LOCATION.lat])
-        .addTo(map.current);
-
-      // Add other user markers
-      activeUsers.forEach(user => {
-        const userEl = document.createElement('div');
-        userEl.className = 'user-marker';
-        userEl.style.width = '12px';
-        userEl.style.height = '12px';
-        userEl.style.borderRadius = '50%';
-        userEl.style.backgroundColor = user.active ? '#10B981' : '#EF4444';
-        userEl.style.border = '2px solid white';
-        userEl.style.boxShadow = '0 0 10px rgba(0,0,0,0.3)';
-
-        new mapboxgl.Marker(userEl)
-          .setLngLat([user.lng, user.lat])
-          .addTo(map.current);
-      });
-
+      addMarkers();
+      
       if (showDetailedView) {
         map.current.flyTo({
           center: [userLocation?.lng || DEFAULT_LOCATION.lng, userLocation?.lat || DEFAULT_LOCATION.lat],
@@ -81,7 +98,7 @@ const Map3D: React.FC<MapProps> = ({
     }
   });
 
-  const updateMapInteractivity = () => {
+  const updateMapInteractivity = useCallback(() => {
     if (!map.current) return;
 
     if (isMapActive) {
@@ -95,11 +112,20 @@ const Map3D: React.FC<MapProps> = ({
       map.current.dragRotate.disable();
       map.current.touchZoomRotate.disable();
     }
-  };
-
-  React.useEffect(() => {
-    updateMapInteractivity();
   }, [isMapActive]);
+
+  useEffect(() => {
+    updateMapInteractivity();
+  }, [updateMapInteractivity]);
+
+  useEffect(() => {
+    return () => {
+      cleanupMarkers();
+      if (map.current) {
+        map.current.remove();
+      }
+    };
+  }, [cleanupMarkers]);
 
   return (
     <>
@@ -117,6 +143,8 @@ const Map3D: React.FC<MapProps> = ({
       />
     </>
   );
-};
+});
+
+Map3D.displayName = 'Map3D';
 
 export default Map3D;
