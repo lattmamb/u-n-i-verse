@@ -34,15 +34,15 @@ const U = () => {
     <div className="h-screen w-screen relative bg-[#1A1F2C] overflow-hidden">
       <motion.div 
         style={{ opacity, scale }}
-        className={`fixed inset-0 z-0 transition-all duration-300 ${
+        className={`fixed inset-0 z-10 transition-all duration-300 ${
           isGlobeExpanded ? 'scale-125' : ''
         }`}
       >
-        <Globe className="opacity-50" />
+        <Globe className="opacity-100" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#1A1F2C]/80" />
       </motion.div>
       
-      <div className="relative z-10">
+      <div className="relative z-20">
         <Map3D userLocation={null} />
         <MainNavigation />
         <TabNavigation activeTab={activeTab} onTabChange={handleTabChange} />
