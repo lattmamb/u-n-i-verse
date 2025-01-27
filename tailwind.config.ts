@@ -25,12 +25,20 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#8B5CF6",
-          foreground: "#FFFFFF",
+          DEFAULT: "#FFFC00", // Snapchat yellow
+          foreground: "#000000",
         },
         secondary: {
-          DEFAULT: "#D6BCFA",
-          foreground: "#1A1F2C",
+          DEFAULT: "#00F7EF", // Snapchat teal
+          foreground: "#000000",
+        },
+        snap: {
+          yellow: "#FFFC00",
+          black: "#000000",
+          white: "#FFFFFF",
+          gray: "#999999",
+          blue: "#00F7EF",
+          red: "#FF0049",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",

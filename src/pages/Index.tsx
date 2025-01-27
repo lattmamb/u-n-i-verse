@@ -7,7 +7,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { Ghost, Camera, MessageCircle, Map } from "lucide-react";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("u");
@@ -22,20 +22,20 @@ const Index = () => {
   };
 
   const navigationButtons = [
-    { label: "Explore U", route: "/u" },
-    { label: "Navigate N", route: "/n" },
-    { label: "Discover I", route: "/i" },
-    { label: "Enter Verse", route: "/verse" },
+    { label: "Camera", icon: <Camera className="w-6 h-6" />, route: "/u" },
+    { label: "Chat", icon: <MessageCircle className="w-6 h-6" />, route: "/n" },
+    { label: "Map", icon: <Map className="w-6 h-6" />, route: "/i" },
+    { label: "Stories", icon: <Ghost className="w-6 h-6" />, route: "/verse" },
   ];
 
   return (
-    <div className="h-screen w-screen relative bg-[#1A1F2C] overflow-hidden">
+    <div className="h-screen w-screen relative bg-snap-black overflow-hidden">
       <motion.div 
         style={{ opacity, scale }}
         className="fixed inset-0 z-0"
       >
         <Globe className="opacity-50" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#1A1F2C]/80" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-snap-black/80" />
       </motion.div>
       
       <div className="relative z-10">
@@ -52,11 +52,15 @@ const Index = () => {
               >
                 <Button
                   variant="ghost"
-                  className="w-full h-24 bg-white/10 backdrop-blur-sm hover:bg-white/20 flex flex-col items-center justify-center gap-2"
+                  className="w-full h-24 bg-snap-yellow/10 backdrop-blur-sm hover:bg-snap-yellow/20 flex flex-col items-center justify-center gap-2 border-2 border-snap-yellow/20 group transition-all duration-300"
                   onClick={() => navigate(button.route)}
                 >
-                  <span className="text-lg font-semibold">{button.label}</span>
-                  <ArrowRight className="w-5 h-5" />
+                  <div className="text-snap-yellow group-hover:text-snap-yellow/80 transition-colors">
+                    {button.icon}
+                  </div>
+                  <span className="text-lg font-bold text-snap-yellow group-hover:text-snap-yellow/80 transition-colors">
+                    {button.label}
+                  </span>
                 </Button>
               </motion.div>
             ))}
