@@ -78,8 +78,6 @@ export function Globe({
   }
 
   useEffect(() => {
-    if (!canvasRef.current) return
-
     window.addEventListener("resize", onResize)
     onResize()
 
@@ -90,16 +88,8 @@ export function Globe({
       onRender,
     })
 
-    setTimeout(() => {
-      if (canvasRef.current) {
-        canvasRef.current.style.opacity = "1"
-      }
-    })
-
-    return () => {
-      globe.destroy()
-      window.removeEventListener("resize", onResize)
-    }
+    setTimeout(() => (canvasRef.current!.style.opacity = "1"))
+    return () => globe.destroy()
   }, [])
 
   return (

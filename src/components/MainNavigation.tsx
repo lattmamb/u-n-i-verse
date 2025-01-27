@@ -1,4 +1,4 @@
-import { Camera, Map, MessageCircle, Ghost, Plus } from "lucide-react";
+import { Home, MapPin, Plus, Calendar, Navigation } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -9,7 +9,7 @@ export const MainNavigation = () => {
 
   const handleNavigation = (route: string, label: string) => {
     toast({
-      title: `Opening ${label}`,
+      title: `Navigating to ${label}`,
       description: "Loading content...",
     });
     navigate(route);
@@ -17,38 +17,39 @@ export const MainNavigation = () => {
 
   const handleCreate = () => {
     toast({
-      title: "New Snap",
-      description: "Opening camera...",
+      title: "Create New Content",
+      description: "Opening creator studio...",
     });
+    // This would typically open a modal or navigate to a creation page
   };
 
   return (
     <motion.div 
       initial={{ y: 100 }}
       animate={{ y: 0 }}
-      className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-snap-black to-transparent p-4"
+      className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-black/80 to-transparent p-4"
     >
       <div className="flex justify-around items-center max-w-screen-sm mx-auto">
         <NavButton 
-          icon={<Map className="w-6 h-6" />} 
-          label="Map" 
-          onClick={() => handleNavigation("/", "Map")}
+          icon={<Home className="w-6 h-6" />} 
+          label="Home" 
+          onClick={() => handleNavigation("/", "Home")}
         />
         <NavButton 
-          icon={<MessageCircle className="w-6 h-6" />} 
-          label="Chat" 
-          onClick={() => handleNavigation("/verse", "Chat")}
+          icon={<MapPin className="w-6 h-6" />} 
+          label="Map" 
+          onClick={() => handleNavigation("/verse", "Map")}
         />
         <CreateButton onClick={handleCreate} />
         <NavButton 
-          icon={<Camera className="w-6 h-6" />} 
-          label="Camera" 
-          onClick={() => handleNavigation("/u", "Camera")}
+          icon={<Calendar className="w-6 h-6" />} 
+          label="Schedule" 
+          onClick={() => handleNavigation("/u", "Schedule")}
         />
         <NavButton 
-          icon={<Ghost className="w-6 h-6" />} 
-          label="Stories" 
-          onClick={() => handleNavigation("/i", "Stories")}
+          icon={<Navigation className="w-6 h-6" />} 
+          label="Navigate" 
+          onClick={() => handleNavigation("/i", "Navigate")}
         />
       </div>
     </motion.div>
@@ -67,11 +68,11 @@ const NavButton = ({
   <motion.button 
     whileHover={{ scale: 1.1 }}
     whileTap={{ scale: 0.9 }}
-    className="text-snap-yellow/60 hover:text-snap-yellow flex flex-col items-center gap-1 transition-colors"
+    className="text-white/60 hover:text-white flex flex-col items-center gap-1"
     onClick={onClick}
   >
     {icon}
-    <span className="text-xs font-bold">{label}</span>
+    <span className="text-xs">{label}</span>
   </motion.button>
 );
 
@@ -79,10 +80,10 @@ const CreateButton = ({ onClick }: { onClick: () => void }) => (
   <motion.button 
     whileHover={{ scale: 1.1 }}
     whileTap={{ scale: 0.9 }}
-    className="bg-snap-yellow rounded-full p-4 -mt-8 text-snap-black shadow-lg hover:bg-snap-yellow/90 transition-colors"
+    className="bg-purple-500 rounded-full p-4 -mt-8 text-white shadow-lg hover:bg-purple-600 transition-colors"
     onClick={onClick}
   >
     <Plus className="w-6 h-6" />
-    <span className="text-xs font-bold mt-1">Snap</span>
+    <span className="text-xs font-semibold mt-1">Create</span>
   </motion.button>
 );

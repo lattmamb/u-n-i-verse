@@ -9,10 +9,10 @@ interface TabNavigationProps {
 export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
   const navigate = useNavigate();
   const tabs = [
-    { id: "u", label: "Camera", path: "/u", isMain: true },
-    { id: "n", label: "Chat", path: "/n", isMain: false },
-    { id: "i", label: "Map", path: "/i", isMain: true },
-    { id: "verse", label: "Stories", path: "/verse", isMain: true },
+    { id: "u", label: "U", path: "/u", isMain: true },
+    { id: "n", label: "N", path: "/n", isMain: false },
+    { id: "i", label: "I", path: "/i", isMain: true },
+    { id: "verse", label: "VERSE", path: "/verse", isMain: true },
   ];
 
   const handleTabClick = (tab: { id: string; path: string }) => {
@@ -30,17 +30,17 @@ export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) =>
               className={cn(
                 "transition-all",
                 tab.isMain
-                  ? "text-lg font-bold"
+                  ? "text-lg font-semibold"
                   : "text-sm font-normal opacity-50",
                 activeTab === tab.id
-                  ? "text-snap-yellow scale-110"
-                  : "text-snap-yellow/60 hover:text-snap-yellow/80"
+                  ? "text-white scale-110"
+                  : "text-white/60 hover:text-white/80"
               )}
             >
               {tab.label}
             </button>
             {index < tabs.length - 1 && (
-              <span className="text-snap-yellow/20 mx-2">•</span>
+              <span className="text-white/20 mx-2">•</span>
             )}
           </div>
         ))}

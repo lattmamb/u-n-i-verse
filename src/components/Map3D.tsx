@@ -1,12 +1,11 @@
-import React, { useRef, useState, useCallback, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { MapControls } from './map/MapControls';
 import { MapOverlay, MapWrapper } from './map/MapOverlay';
 import { useMapInitialization } from '@/hooks/useMapInitialization';
-import { createMarkers } from './map/MapMarkers';
 
-export interface User {
+interface User {
   id: number;
   lat: number;
   lng: number;
@@ -24,41 +23,65 @@ export const DEFAULT_LOCATION = {
   lng: -89.3985
 };
 
-const Map3D: React.FC<MapProps> = React.memo(({ 
+const Map3D: React.FC<MapProps> = ({ 
   userLocation, 
   activeUsers = [], 
   showDetailedView = false 
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const markersRef = useRef<mapboxgl.Marker[]>([]);
   const [isMapActive, setIsMapActive] = useState(false);
   const [is3DMode, setIs3DMode] = useState(true);
-
-  const cleanupMarkers = useCallback(() => {
-    markersRef.current.forEach(marker => marker.remove());
-    markersRef.current = [];
-  }, []);
-
-  const addMarkers = useCallback(() => {
-    if (!map.current) return;
-    cleanupMarkers();
-    markersRef.current = createMarkers({
-      map: map.current,
-      userLocation: userLocation || DEFAULT_LOCATION,
-      activeUsers
-    });
-  }, [userLocation, activeUsers, cleanupMarkers]);
 
   useMapInitialization({
     mapContainer,
     map,
     userLocation: userLocation || DEFAULT_LOCATION,
     is3DMode,
-    onMapLoad: addMarkers
+    onMapLoad: () => {
+      if (!map.current) return;
+
+      // Add user location marker with blue arrow
+      const el = document.createElement('div');
+      el.className = 'location-marker';
+      el.style.width = '20px';
+      el.style.height = '20px';
+      el.style.backgroundImage = `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 0L20 20L10 15L0 20L10 0Z' fill='%230EA5E9'/%3E%3C/svg%3E")`;
+      el.style.backgroundSize = '100%';
+
+      new mapboxgl.Marker(el)
+        .setLngLat([userLocation?.lng || DEFAULT_LOCATION.lng, userLocation?.lat || DEFAULT_LOCATION.lat])
+        .addTo(map.current);
+
+      // Add other user markers
+      activeUsers.forEach(user => {
+        const userEl = document.createElement('div');
+        userEl.className = 'user-marker';
+        userEl.style.width = '12px';
+        userEl.style.height = '12px';
+        userEl.style.borderRadius = '50%';
+        userEl.style.backgroundColor = user.active ? '#10B981' : '#EF4444';
+        userEl.style.border = '2px solid white';
+        userEl.style.boxShadow = '0 0 10px rgba(0,0,0,0.3)';
+
+        new mapboxgl.Marker(userEl)
+          .setLngLat([user.lng, user.lat])
+          .addTo(map.current);
+      });
+
+      if (showDetailedView) {
+        map.current.flyTo({
+          center: [userLocation?.lng || DEFAULT_LOCATION.lng, userLocation?.lat || DEFAULT_LOCATION.lat],
+          zoom: 12,
+          pitch: 60,
+          bearing: 0,
+          duration: 2000
+        });
+      }
+    }
   });
 
-  const updateMapInteractivity = useCallback(() => {
+  const updateMapInteractivity = () => {
     if (!map.current) return;
 
     if (isMapActive) {
@@ -72,20 +95,11 @@ const Map3D: React.FC<MapProps> = React.memo(({
       map.current.dragRotate.disable();
       map.current.touchZoomRotate.disable();
     }
-  }, [isMapActive]);
+  };
 
-  useEffect(() => {
+  React.useEffect(() => {
     updateMapInteractivity();
-  }, [updateMapInteractivity]);
-
-  useEffect(() => {
-    return () => {
-      cleanupMarkers();
-      if (map.current) {
-        map.current.remove();
-      }
-    };
-  }, [cleanupMarkers]);
+  }, [isMapActive]);
 
   return (
     <>
@@ -103,8 +117,6 @@ const Map3D: React.FC<MapProps> = React.memo(({
       />
     </>
   );
-});
-
-Map3D.displayName = 'Map3D';
+};
 
 export default Map3D;
